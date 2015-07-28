@@ -1,0 +1,50 @@
+#LOOCV
+glm.fit=glm(mpg~horsepower,data=Auto)
+cv.glm(Auto,glm.fit)$delta
+
+#LOOCV using the fomula with 'hat' matrix
+loocv=function (fit){
+  h=lm.influence(fit)$h
+  mean((residuals(fit)/(1-h))^2)
+}
+loocv(glm.fit)
+
+#CV errors against polynomial with diff. degree
+cv.error=rep(0,5) ## a empty set to collect error
+degree=1:5
+for(d in degree){
+  glm.fit1=glm(mpg~poly(horsepower,d),data=Auto)
+  cv.error[d]=loocv(glm.fit1)
+}
+par(mfrow=c(1,1));plot(degree,cv.error,type='b')
+
+
+
+##10-fold CV
+cv.error10=rep(0,5)
+degree=1:5
+for(d in degree){
+  glm.fit=glm(mpg~poly(horsepower,d),data=Auto)
+  cv.error10[d]=cv.glm(Auto, glm.fit, K=10)$delta[1]
+}
+lines(degree,cv.error10, type='b',col='red')
+
+
+
+##bootstrap
+attach(Portfolio)
+alpha<-function(x,y){
+  (var(y)-var(x,y))/(var(x)+var(y)-2*(var(x,y)))
+}## remember 2*() != 2()
+alpha(X,Y)
+
+alpha.fn=function(data,index){
+  with(data[index,],alpha(X,Y))
+}## use to repeat place input into func..##
+
+alpha.fn(Portfolio,1:100)
+
+set.seed(1)
+alpha.fn(Portfolio, sample(1:100, 100, replace=T))
+boot.out=boot(Portfolio,alpha.fn,R=10000);summary(boot.out)
+plot(boot.out)
