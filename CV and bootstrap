@@ -1,3 +1,5 @@
+A Introduction to Statistical Learning by Gareth et al.. 
+chap 5
 #LOOCV
 glm.fit=glm(mpg~horsepower,data=Auto)
 cv.glm(Auto,glm.fit)$delta
